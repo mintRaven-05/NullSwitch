@@ -206,7 +206,6 @@ void waitForUserInput() {
   while (Serial.available()) {
     char c = Serial.read();
 
-    // Handle Ctrl+C
     if (c == 3) {
       Serial.println();
       Serial.println("\033[33m[!] Network scan aborted.\033[0m");
@@ -237,11 +236,117 @@ void waitForUserInput() {
     } else if (c >= '0' && c <= '9') {
       commandBuffer += c;
       Serial.print(c);
-    } else if (c == 8 || c == 127) { // Backspace
+    } else if (c == 8 || c == 127) {
       if (commandBuffer.length() > 0) {
         commandBuffer.remove(commandBuffer.length() - 1);
         Serial.print("\b \b");
       }
     }
   }
+}
+
+void updateClientDisplay() {
+  uint32_t currentTime = millis();
+  int activeCount = 0;
+  for (int i = 0; i < clientCount; i++) {
+    if (clients[i].active) {
+      activeCount++;
+    }
+  }
+
+  if (!headerPrinted) {
+    Serial.println(
+        "================\033[33m ACTIVE CLIENTS \033[0m================");
+    Serial.println("Network: " + targetSSID);
+    Serial.print("BSSID: ");
+    printMac(targetBSSID);
+    Serial.println();
+    Serial.println("Channel: " + String(targetChannel));
+    Serial.println("\033[32m[+] Switching scan modes\033[0m");
+    Serial.println("\033[32m[+] Started Capturing Packets....\033[0m");
+    Serial.println();
+    Serial.println(
+        "======================================================================"
+        "===========================");
+    headerPrinted = true;
+  } else {
+    int linesToClear = 0;
+    if (lastActiveCount > 0) {
+      linesToClear = lastActiveCount +
+                     4;
+    } else {
+      linesToClear = 5;
+    }
+    clearLines(linesToClear);
+  }
+
+  if (activeCount == 0) {
+    Serial.println("\033[90m[~] Refreshing to detect active users");
+    Serial.println("Troubleshooting tips:");
+    Serial.println("1. Verify the selected network is correct");
+    Serial.println("2. Try generating traffic on connected devices");
+    Serial.println("3. Check if devices are in power-saving mode\033[0m");
+  } else {
+    Serial.println(
+        "No.  MAC Address              Manufacturer        "
+        "RSSI       Signal       Packets      Last Seen");
+    Serial.println(
+        "----------------------------------------------------------------------"
+        "---------------------------");
+
+    int displayedCount = 0;
+    for (int i = 0; i < clientCount; i++) {
+      if (clients[i].active) {
+        displayedCount++;
+        Serial.print(displayedCount);
+        if (displayedCount < 10)
+          Serial.print("    ");
+        else
+          Serial.print("   ");
+
+        printMac(clients[i].mac);
+        Serial.print("        ");
+
+        String manufacturer = clients[i].macOUI;
+        if (manufacturer.length() > 22)
+          manufacturer = manufacturer.substring(0, 19) + "...";
+        Serial.print(manufacturer);
+        for (int j = manufacturer.length(); j < 20; j++)
+          Serial.print(" ");
+        Serial.print(clients[i].rssi);
+        if (clients[i].rssi > -10)
+          Serial.print("          ");
+        else if (clients[i].rssi > -100)
+          Serial.print("         ");
+        else
+          Serial.print("        ");
+
+        String signalStrength = getSignalStrength(clients[i].rssi);
+        Serial.print(signalStrength);
+        for (int j = signalStrength.length(); j < 13; j++)
+          Serial.print(" ");
+
+        Serial.print(clients[i].packetCount);
+        if (clients[i].packetCount < 10)
+          Serial.print("           ");
+        else if (clients[i].packetCount < 100)
+          Serial.print("          ");
+        else if (clients[i].packetCount < 1000)
+          Serial.print("         ");
+        else if (clients[i].packetCount < 10000)
+          Serial.print("        ");
+        else
+          Serial.print("       ");
+
+        Serial.print(String((currentTime - clients[i].lastSeen) / 1000));
+        Serial.println("s ago");
+      }
+    }
+    Serial.println(
+        "----------------------------------------------------------------------"
+        "---------------------------");
+    Serial.println("\033[90m[+] Total active clients: " + String(activeCount) +
+                   "\033[0m");
+  }
+  lastActiveCount = activeCount;
 }
