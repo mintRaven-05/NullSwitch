@@ -4,7 +4,6 @@
 #include "../include/utils.h"
 #include "../include/globals.h"
 
-// WiFi management functions
 void scanWiFiNetworks() {
   Serial.println("\n\033[1;36mScanning for WiFi networks...\033[0m");
   Serial.println(
@@ -58,4 +57,41 @@ void scanWiFiNetworks() {
   }
   Serial.println(
       "\033[36m------------------------------------------------\033[0m");
+}
+
+void connectToWiFi(String ssid, String password) {
+  Serial.println("\n\033[1;36mConnecting to WiFi...\033[0m");
+  Serial.print("\033[33mSSID: \033[0m");
+  Serial.println(ssid);
+
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid.c_str(), password.c_str());
+
+  int attempts = 0;
+  Serial.print("\033[33mConnecting");
+  while (WiFi.status() != WL_CONNECTED && attempts < 20) {
+    delay(500);
+    Serial.print(".");
+    attempts++;
+  }
+
+  Serial.println();
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\033[32mWiFi connected successfully!\033[0m");
+    Serial.print("\033[33mIP Address: \033[0m");
+    Serial.println(WiFi.localIP());
+    Serial.print("\033[33mSignal Strength: \033[0m");
+    Serial.print(WiFi.RSSI());
+    Serial.println(" dBm");
+  } else {
+    Serial.println("\033[31mFailed to connect to WiFi!\033[0m");
+    Serial.print("\033[31mStatus: \033[0m");
+    Serial.println(WiFi.status());
+  }
+
+void disconnectFromWiFi() {
+  Serial.println("\n\033[1;33mDisconnecting from WiFi...\033[0m");
+  WiFi.disconnect();
+  Serial.println("\033[32mWiFi disconnected.\033[0m");
 }
