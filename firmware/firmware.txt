@@ -1,0 +1,30 @@
+NullSwitch
+========================================================================
+VERSION: 1.0.0
+The current version includes the following features
+   - Interactive CLI with essential usability features:
+      * Command history traversal
+      * Auto tab completion
+      * Cursor movement and control
+
+   - Network Scanning and Monitoring
+      * Scans for nearby wireless networks
+      * Monitors and lists active devices connected to discovered networks
+
+   - Packet Monitoring
+      * Supports both auto mode (dynamic channel hopping) and locked mode (fixed channel)
+      * Detects and notifies on deauthentication (deauth) attacks in real time
+
+   - Beacon Attack Module
+      * Generates beacon frames to simulate fake access points
+      * Intended to confuse network scanners
+
+Planned Features
+   - Evil Twin Attack Module
+      * Create rogue access points to mimic legitimate networks
+      * Intended for phishing, penetration testing, or red team scenarios
+
+   - FTP Server Hosting
+      * Launch an FTP server over the connected network
+      * Enables file sharing, data transfer, or payload delivery
+
