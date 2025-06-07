@@ -2,6 +2,7 @@
 #define GLOBALS_H
 
 #include "config.h"
+#include "netscan.h"
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 
@@ -30,3 +31,17 @@ extern int currentHistoryIndex;
 extern int cursorPosition;
 extern String wifiSSID;
 extern String wifiPassword;
+
+//======================NETSCAN==========================
+extern bool networkScanActive;
+enum ScanState { SCANNING_NETWORKS, WAITING_FOR_INPUT, SCANNING_CLIENTS };
+extern ScanState currentScanState;
+extern int networkCount;
+extern int clientCount;
+
+extern uint8_t targetBSSID[6];
+extern int targetChannel;
+extern String targetSSID;
+
+extern bool headerPrinted;
+extern int lastActiveCount;
