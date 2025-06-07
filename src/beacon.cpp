@@ -109,3 +109,61 @@ void process_network_list() {
     read_pos += char_count;
   }
 }
+
+void send_single_beacon(const char *ssid_name, uint8_t ssid_length) {
+  memcpy(&beacon_frame[10], device_mac, MAC_ADDRESS_LENGTH);
+  memcpy(&beacon_frame[16], device_mac, MAC_ADDRESS_LENGTH);
+  memcpy(&beacon_frame[38], blank_ssid, MAX_SSID_LENGTH);
+  memcpy_P(&beacon_frame[38], ssid_name, ssid_length);
+
+  beacon_frame[82] = active_channel;
+
+  if (pad_ssid_names) {
+    for (int transmission = 0; transmission < TRANSMISSION_REPEATS;
+         transmission++) {
+      sent_packets += wifi_send_pkt_freedom(beacon_frame, frame_size, 0) == 0;
+      delay(1);
+    }
+  } else {
+    uint16_t dynamic_size = (frame_size - MAX_SSID_LENGTH) + ssid_length;
+    uint8_t *dynamic_frame = new uint8_t[dynamic_size];
+
+    memcpy(&dynamic_frame[0], &beacon_frame[0], 38 + ssid_length);
+    dynamic_frame[37] = ssid_length;
+    memcpy(&dynamic_frame[38 + ssid_length], &beacon_frame[70],
+           enable_wpa2_mode ? 39 : 13);
+
+    for (int transmission = 0; transmission < TRANSMISSION_REPEATS;
+         transmission++) {
+      sent_packets +=
+          wifi_send_pkt_freedom(dynamic_frame, dynamic_size, 0) == 0;
+      delay(1);
+    }
+
+    delete dynamic_frame;
+  }
+}
+
+void transmit_beacon_frames() {
+  if (time_now - last_attack > ATTACK_INTERVAL) {
+    last_attack = time_now;
+
+    switch_channel();
+    process_network_list();
+  }
+}
+  
+void display_transmission_rate() {
+  if (time_now - rate_check_time > RATE_CHECK_INTERVAL) {
+    rate_check_time = time_now;
+    Serial.print("Transmission rate: ");
+    Serial.print(sent_packets);
+    Serial.print(" packets/sec\r");
+    sent_packets = 0;
+  }
+}
+
+void stopBeaconAttack() {
+  wifi_unregister_send_pkt_freedom_cb();
+  WiFi.mode(WIFI_OFF);
+}
