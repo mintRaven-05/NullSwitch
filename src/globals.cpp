@@ -37,6 +37,10 @@ String targetSSID = "";
 bool headerPrinted = false;
 int lastActiveCount = 0;
 
+//================NETWORKS & CLIENTS====================
+NetworkInfo networks[MAX_NETWORKS] = {};
+ClientInfo clients[MAX_CLIENTS] = {};
+
 //======================PKTMON==========================
 bool packetMonitoringActive = false;
 unsigned long prevTime = 0;
