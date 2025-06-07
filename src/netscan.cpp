@@ -96,3 +96,78 @@ String getSignalStrength(int rssi) {
   else
     return "Frail";
 }
+
+void displayNetworks() {
+  Serial.println("AVAILABLE NETWORKS:");
+  Serial.println("============================================================="
+                 "================================");
+
+  Serial.print("Sl.  SSID               BSSID              Channel   RSSI    "
+               "Signal          Security");
+  Serial.println();
+  Serial.println("------------------------------------------------------"
+                 "---------------------------------------");
+
+  for (int i = 0; i < networkCount; i++) {
+    if (checkForAbort()) {
+      Serial.println();
+      Serial.println("\033[33mNetwork scan aborted.\033[0m");
+      networkScanActive = false;
+      showPrompt();
+      return;
+    }
+
+    String signalStrength = getSignalStrength(networks[i].rssi);
+    String securityIcon = (networks[i].security == "Open") ? "[O]" : "[L]";
+
+    Serial.print(i + 1);
+    if (i + 1 < 10)
+      Serial.print("    ");
+    else if (i + 1 < 100)
+      Serial.print("   ");
+    else
+      Serial.print("  ");
+
+    String ssid = networks[i].ssid;
+    if (ssid.length() > 14)
+      ssid = ssid.substring(0, 17) + "...";
+    Serial.print(ssid);
+    for (int j = ssid.length(); j < 14; j++)
+      Serial.print(" ");
+
+    Serial.print(networks[i].bssid);
+    Serial.print("         ");
+
+    Serial.print(networks[i].channel);
+    if (networks[i].channel < 10)
+      Serial.print("       ");
+    else
+      Serial.print("      ");
+
+    Serial.print(networks[i].rssi);
+    if (networks[i].rssi > -10)
+      Serial.print("       ");
+    else if (networks[i].rssi > -100)
+      Serial.print("      ");
+    else
+      Serial.print("     ");
+
+    Serial.print(signalStrength);
+    for (int j = signalStrength.length(); j < 12; j++)
+      Serial.print(" ");
+
+    Serial.print(securityIcon);
+    Serial.print(" ");
+    Serial.println(networks[i].security);
+  }
+  Serial.println("------------------------------------------------------"
+                 "---------------------------------------");
+  Serial.println("\n\033[32m[+]\033[0m Enter the serial number of the network "
+                 "to scan for active devices");
+  Serial.println("\033[32m[+]\033[0m Press Ctrl+C to return to shell:");
+  Serial.print("\033[33m[?]\033[0m Selection (1-");
+  Serial.print(networkCount);
+  Serial.print("): ");
+
+  currentScanState = WAITING_FOR_INPUT;
+}
