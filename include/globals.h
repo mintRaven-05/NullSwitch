@@ -46,6 +46,10 @@ extern String targetSSID;
 extern bool headerPrinted;
 extern int lastActiveCount;
 
+//=================NETWORKS & CLIENTS===================
+extern NetworkInfo networks[MAX_NETWORKS];
+extern ClientInfo clients[MAX_CLIENTS];
+
 //======================PKTMON==========================
 extern bool packetMonitoringActive;
 extern unsigned long prevTime;
