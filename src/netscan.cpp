@@ -394,3 +394,66 @@ void addOrUpdateClient(const uint8_t *clientMac, int8_t rssi) {
     clientCount++;
   }
 }
+
+void ICACHE_RAM_ATTR promiscuousCallback(uint8_t *buf, uint16_t len) {
+  if (len < sizeof(wifi_pkt_rx_ctrl_t))
+    return;
+
+  wifi_pkt_t *pkt = (wifi_pkt_t *)buf;
+  wifi_pkt_rx_ctrl_t *ctrl = &pkt->rx_ctrl;
+
+  if (len < sizeof(wifi_pkt_rx_ctrl_t) + sizeof(ieee80211_hdr))
+    return;
+
+  ieee80211_hdr *hdr = (ieee80211_hdr *)(buf + sizeof(wifi_pkt_rx_ctrl_t));
+  uint8_t frameType = (hdr->frame_ctrl & 0x0C) >> 2;
+  uint8_t frameSubType = (hdr->frame_ctrl & 0xF0) >> 4;
+
+  // totalPackets++;
+  bool isRelevant = false;
+  const uint8_t *clientMac = nullptr;
+
+  switch (frameType) {
+  case WIFI_PKT_DATA:
+    if (compareMac(hdr->addr1, targetBSSID)) {
+      clientMac = hdr->addr2;
+      isRelevant = true;
+    } else if (compareMac(hdr->addr2, targetBSSID)) {
+      clientMac = hdr->addr1;
+      isRelevant = true;
+    } else if (compareMac(hdr->addr3, targetBSSID)) {
+      if (!compareMac(hdr->addr1, targetBSSID)) {
+        clientMac = hdr->addr1;
+        isRelevant = true;
+      } else if (!compareMac(hdr->addr2, targetBSSID)) {
+        clientMac = hdr->addr2;
+        isRelevant = true;
+      }
+    }
+    break;
+
+  case WIFI_PKT_MGMT:
+    if (frameSubType == 0 || frameSubType == 1 || 
+        frameSubType == 2 || frameSubType == 3 || 
+        frameSubType == 4 || frameSubType == 5 || 
+        frameSubType == 11) {                     
+      if (compareMac(hdr->addr3, targetBSSID) ||
+          compareMac(hdr->addr1, targetBSSID) ||
+          compareMac(hdr->addr2, targetBSSID)) {
+        if (!compareMac(hdr->addr1, targetBSSID)) {
+          clientMac = hdr->addr1;
+          isRelevant = true;
+        } else if (!compareMac(hdr->addr2, targetBSSID)) {
+          clientMac = hdr->addr2;
+          isRelevant = true;
+        }
+      }
+    }
+    break;
+  }
+
+  if (isRelevant && clientMac) {
+    // relevantPackets++;
+    addOrUpdateClient(clientMac, ctrl->rssi);
+  }
+}
