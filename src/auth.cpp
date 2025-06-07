@@ -32,17 +32,16 @@ void _generate_hash(String password, uint8_t *output, uint8_t *salt) {
 }
 
 void generateSalt(uint8_t *salt) {
-    for (int i = 0; i < 16; i++) {
-      salt[i] = (uint8_t)RANDOM_REG32;
-    }
+  for (int i = 0; i < 16; i++) {
+    salt[i] = (uint8_t)RANDOM_REG32;
+  }
+  uint32_t chipId = ESP.getChipId();
+  uint32_t time = millis();
 
-    uint32_t chipId = ESP.getChipId();
-    uint32_t time = millis();
-  
-    for (int i = 0; i < 4; i++) {
-      salt[i] ^= (chipId >> (i * 8)) & 0xFF;
-      salt[i + 4] ^= (time >> (i * 8)) & 0xFF;
-    }
+  for (int i = 0; i < 4; i++) {
+    salt[i] ^= (chipId >> (i * 8)) & 0xFF;
+    salt[i + 4] ^= (time >> (i * 8)) & 0xFF;
+  }
 }
 
 bool passwordHashExists() {
@@ -101,4 +100,115 @@ bool verifyPassword(String password) {
   }
 
   return match;
+}
+
+void removePasswordHash() {
+  EEPROM.begin(EEPROM_SIZE);
+
+  for (int i = HASH_ADDRESS; i < HASH_ADDRESS + HASH_SIZE; i++) {
+    EEPROM.write(i, 0xFF);
+  }
+  for (int i = SALT_ADDRESS; i < SALT_ADDRESS + SALT_SIZE; i++) {
+    EEPROM.write(i, 0xFF);
+  }
+
+  uint32_t clearMagic = 0x00000000;
+  EEPROM.put(MAGIC_ADDRESS, clearMagic);
+
+  EEPROM.commit();
+  EEPROM.end();
+
+  Serial.println("\033[32m[+] Password removed successfully!\033[0m");
+  Serial.println("\033[32m[+] System will restart...\033[0m");
+  delay(2000);
+  ESP.restart();
+}
+
+void handlePasswordSetting() {
+  if (!settingPassword)
+    return;
+
+  while (Serial.available()) {
+    char c = Serial.read();
+    if (c == '\n' || c == '\r') {
+      if (commandBuffer.length() > 0) {
+        Serial.println();
+        Serial.println("\033[32m[+] Password set successfully!\033[0m");
+        storePasswordHash(commandBuffer);
+        commandBuffer = "";
+        cursorPosition = 0;
+        authenticated = true;
+        settingPassword = false;
+        Serial.println("\033[32m[+] Authentication completed!\033[0m");
+        displayBootInfo();
+        return;
+      }
+    } else if (c == 8 || c == 127) {
+      if (commandBuffer.length() > 0 && cursorPosition > 0) {
+        commandBuffer.remove(cursorPosition - 1, 1);
+        cursorPosition--;
+        Serial.print("\b \b");
+      }
+    } else if (c >= 32 && c <= 126) {
+      commandBuffer += c;
+      cursorPosition++;
+      Serial.print("*");
+    }
+  }
+}
+
+void handlePasswordRemoval() {
+  if (!awaitingPasswordRemoval)
+    return;
+
+  if (checkForAbort()) {
+    Serial.println();
+    Serial.println("\033[33m[!] Password removal aborted.\033[0m");
+    awaitingPasswordRemoval = false;
+    commandBuffer = "";
+    cursorPosition = 0;
+    showPrompt();
+    return;
+  }
+
+  while (Serial.available()) {
+    char c = Serial.read();
+
+    if (c == 3) {
+      Serial.println();
+      Serial.println("\033[33m[!] Password removal aborted.\033[0m");
+      awaitingPasswordRemoval = false;
+      commandBuffer = "";
+      cursorPosition = 0;
+      showPrompt();
+      return;
+    }
+
+    if (c == '\n' || c == '\r') {
+      if (commandBuffer.length() > 0) {
+        Serial.println();
+        if (verifyPassword(commandBuffer)) {
+          Serial.println("\033[32m[+] Password verified!\033[0m");
+          removePasswordHash();
+        } else {
+          Serial.println("\033[31m[!] Incorrect password! Password removal "
+                         "cancelled.\033[0m");
+          awaitingPasswordRemoval = false;
+          showPrompt();
+        }
+        commandBuffer = "";
+        cursorPosition = 0;
+      }
+    } else if (c == 8 || c == 127) {
+      if (commandBuffer.length() > 0 && cursorPosition > 0) {
+        commandBuffer.remove(cursorPosition - 1, 1);
+        cursorPosition--;
+        Serial.print("\b \b");
+      }
+    } else if (c >= 32 && c <= 126) {
+      commandBuffer += c;
+      cursorPosition++;
+      Serial.print("*");
+    }
+  }
 }
