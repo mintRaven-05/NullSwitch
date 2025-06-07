@@ -73,3 +73,39 @@ void initialize_system() {
   wifi_set_opmode(STATION_MODE);
   wifi_set_channel(wifi_channels[0]);
 }
+
+void setup_beacon_frame() {
+  frame_size = sizeof(beacon_frame);
+  if (enable_wpa2_mode) {
+    beacon_frame[34] = 0x31;
+  } else {
+    beacon_frame[34] = 0x21;
+    frame_size -= 26;
+  }
+}
+
+void process_network_list() {
+  int read_pos = 0;
+  int char_count = 0;
+  int network_id = 1;
+  char current_char;
+  int networks_length = strlen_P(network_list);
+
+  while (read_pos < networks_length) {
+    char_count = 0;
+    do {
+      current_char = pgm_read_byte(network_list + read_pos + char_count);
+      char_count++;
+    } while (current_char != '\n' && char_count <= MAX_SSID_LENGTH &&
+             read_pos + char_count < networks_length);
+
+    uint8_t name_length = char_count - 1;
+
+    device_mac[5] = network_id;
+    network_id++;
+
+    send_single_beacon(&network_list[read_pos], name_length);
+
+    read_pos += char_count;
+  }
+}
