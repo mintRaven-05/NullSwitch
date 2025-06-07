@@ -72,3 +72,5 @@ extern unsigned int val[MAX_ROW];
 //======================BEACON==========================
 extern char network_list[650] PROGMEM;
 extern bool beaconAttackActive;
+
+#endif // GLOBALS_H
