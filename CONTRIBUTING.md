@@ -38,3 +38,6 @@ Please take a moment to review this guide to make the contribution process smoot
 * Format: type(scope): subject
 
 Keep the subject short (72 characters) and use imperative mood. Use the body (optional) for detailed explanations if needed
+
+<p align="center">Copyright &copy; 2025 <a href="https://github.com/mintRaven-05" target="_blank">Debjeet Banerjee</a>
+<p align="center"><a href="https://github.com/mintRaven-05/NullSwitch/blob/main/LICENSE"><img src="https://img.shields.io/static/v1.svg?style=for-the-badge&label=License&message=MIT&logoColor=d9e0ee&colorA=363a4f&colorB=b7bdf8"/></a></p>
