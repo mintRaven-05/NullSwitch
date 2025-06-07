@@ -163,3 +163,75 @@ void showWiFiStatus() {
   Serial.println(
       "\033[36m================================================\033[0m");
 }
+
+void handleWiFiCredentials() {
+  if (!awaitingWiFiCredentials)
+    return;
+
+  if (checkForAbort()) {
+    Serial.println();
+    Serial.println("\033[33mWiFi connection setup aborted.\033[0m");
+    awaitingWiFiCredentials = false;
+    awaitingSSID = true;
+    wifiSSID = "";
+    wifiPassword = "";
+    commandBuffer = "";
+    cursorPosition = 0;
+    showPrompt();
+    return;
+  }
+
+  while (Serial.available()) {
+    char c = Serial.read();
+
+    if (c == 3) {
+      Serial.println();
+      Serial.println("\033[33mWiFi connection setup aborted.\033[0m");
+      awaitingWiFiCredentials = false;
+      awaitingSSID = true;
+      wifiSSID = "";
+      wifiPassword = "";
+      commandBuffer = "";
+      cursorPosition = 0;
+      showPrompt();
+      return;
+    }
+
+    if (c == '\n' || c == '\r') {
+      if (commandBuffer.length() > 0) {
+        if (awaitingSSID) {
+          wifiSSID = commandBuffer;
+          Serial.println();
+          Serial.print(
+              "\033[33mEnter WiFi password (Ctrl+C to abort): \033[0m");
+          awaitingSSID = false;
+        } else {
+          wifiPassword = commandBuffer;
+          Serial.println();
+          awaitingWiFiCredentials = false;
+          connectToWiFi(wifiSSID, wifiPassword);
+          wifiSSID = "";
+          wifiPassword = "";
+          awaitingSSID = true;
+          showPrompt();
+        }
+        commandBuffer = "";
+        cursorPosition = 0;
+      }
+    } else if (c == 8 || c == 127) {
+      if (commandBuffer.length() > 0 && cursorPosition > 0) {
+        commandBuffer.remove(cursorPosition - 1, 1);
+        cursorPosition--;
+        Serial.print("\b \b");
+      }
+    } else if (c >= 32 && c <= 126) {
+      commandBuffer += c;
+      cursorPosition++;
+      if (awaitingSSID) {
+        Serial.print(c);
+      } else {
+        Serial.print("*");
+      }
+    }
+  }
+}
