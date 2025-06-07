@@ -172,6 +172,60 @@ void displayNetworks() {
   currentScanState = WAITING_FOR_INPUT;
 }
 
+void scanNetworks() {
+    networkCount = 0;
+  
+    int scanResult = WiFi.scanNetworks(false, true);
+  
+    if (scanResult == 0) {
+      Serial.println("No networks found");
+      networkScanActive = false;
+      showPrompt();
+      return;
+    }
+  
+    Serial.print("\033[90mFound ");
+    Serial.print(scanResult);
+    Serial.println(" networks\033[0m\n");
+  
+    for (int i = 0; i < scanResult && i < 50; i++) {
+      if (checkForAbort()) {
+        Serial.println("\033[33mNetwork scan aborted.\033[0m");
+        networkScanActive = false;
+        WiFi.scanDelete();
+        showPrompt();
+        return;
+      }
+  
+      networks[networkCount].ssid = WiFi.SSID(i);
+      networks[networkCount].bssid = WiFi.BSSIDstr(i);
+      networks[networkCount].rssi = WiFi.RSSI(i);
+      networks[networkCount].security = getSecurityType(WiFi.encryptionType(i));
+      networks[networkCount].channel = WiFi.channel(i);
+  
+      parseBSSID(networks[networkCount].bssid, networks[networkCount].bssidBytes);
+  
+      if (networks[networkCount].ssid.length() == 0) {
+        networks[networkCount].ssid = "[Hidden Network]";
+      }
+  
+      networkCount++;
+    }
+  
+    for (int i = 0; i < networkCount - 1; i++) {
+      for (int j = 0; j < networkCount - i - 1; j++) {
+        if (networks[j].rssi < networks[j + 1].rssi) {
+          NetworkInfo temp = networks[j];
+          networks[j] = networks[j + 1];
+          networks[j + 1] = temp;
+        }
+      }
+    }
+  
+    WiFi.scanDelete();
+    displayNetworks();
+  }
+
 void startClientScanning() {
   Serial.println();
   Serial.println("\033[32m[+] Starting client discovery...\033[0m");
