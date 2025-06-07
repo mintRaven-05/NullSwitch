@@ -1,6 +1,6 @@
 ## Contributing to This Project
 
-***Thank you for considering contributing to this project! We welcome all kinds of contributions—bug reports, feature requests, code changes, documentation improvements, and more.
+***Thank you for considering contributing to this project! I welcome all kinds of contributions—bug reports, feature requests, code changes, documentation improvements, and more.
 Please take a moment to review this guide to make the contribution process smooth and effective for everyone.***
 
 ### How to Contribute
@@ -37,4 +37,4 @@ Please take a moment to review this guide to make the contribution process smoot
 ### Tips for Writing Good Commit Messages
 * Format: type(scope): subject
 
-Keep the subject short ( 72 characters) and use imperative mood. Use the body (optional) for detailed explanations if needed
+Keep the subject short (72 characters) and use imperative mood. Use the body (optional) for detailed explanations if needed
