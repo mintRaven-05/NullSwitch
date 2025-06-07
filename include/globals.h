@@ -45,3 +45,22 @@ extern String targetSSID;
 
 extern bool headerPrinted;
 extern int lastActiveCount;
+
+//======================PKTMON==========================
+extern bool packetMonitoringActive;
+extern unsigned long prevTime;
+extern unsigned long channelSwitchTimer;
+extern unsigned long displayUpdateTimer;
+extern unsigned long curTime;
+extern unsigned long pkts;
+extern unsigned long no_deauths;
+extern unsigned long deauths;
+extern int curChannel;
+extern unsigned long maxVal;
+extern unsigned long totalPackets;
+extern unsigned long totalDeauths;
+extern bool autoScan;
+extern int PKTtargetChannel;
+extern bool monitoringStarted;
+
+extern unsigned int val[MAX_ROW];
