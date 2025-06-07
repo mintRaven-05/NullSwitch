@@ -56,3 +56,30 @@ bool monitoringStarted = false;
 
 unsigned int val[MAX_ROW] = {0};
 
+//======================BEACON==========================
+bool beaconAttackActive = false;
+char network_list[650] PROGMEM = {"Rossogolla Hasimolla WiFi\n"
+    "Tralalero Tralala Net\n"
+    "Bombardiro Crocodilo LAN\n"
+    "Tung Tung Tung Sahur\n"
+    "Lirilì Larilà Network\n"
+    "Brr Brr Patapim Connection\n"
+    "Chimpanzini Bananini\n"
+    "Bombombini Gusini WiFi\n"
+    "Capuccino Assassino Net\n"
+    "Trippi Troppi LAN\n"
+    "Ballerina Cappucina Router\n"
+    "Bobrito Bandito LAN\n"
+    "Elephantuchi Bananuchi\n"
+    "Crocodillo Ananasinno\n"
+    "Penguino Cocosino LAN\n"
+    "Bombardiro Croco Net\n"
+    "Rhino Toaster LAN\n"
+    "Zibra Zubra Network\n"
+    "Tigrrullini Water WiFi\n"
+    "Tracotuco Dela Net\n"
+    "Gorillo Water LAN\n"
+    "Bananita Dolfi Network\n"
+    "Tigroligre Frut Router\n"
+    "Ballerino Lolo WiFi\n"};
+
