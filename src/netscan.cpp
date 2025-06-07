@@ -49,3 +49,50 @@ void parseBSSID(String bssidStr, uint8_t *bssidBytes) {
     bssidBytes[i] = (uint8_t)strtol(byteStr.c_str(), NULL, 16);
   }
 }
+
+String getMacOUI(const uint8_t *mac) {
+  String ouiStr = "";
+  if (mac[0] < 16)
+    ouiStr += "0";
+  ouiStr += String(mac[0], HEX);
+  ouiStr += ":";
+  if (mac[1] < 16)
+    ouiStr += "0";
+  ouiStr += String(mac[1], HEX);
+  ouiStr += ":";
+  if (mac[2] < 16)
+    ouiStr += "0";
+  ouiStr += String(mac[2], HEX);
+  ouiStr.toUpperCase();
+  return "[U](" + ouiStr + ")";
+}
+
+String getSecurityType(int encType) {
+  switch (encType) {
+  case ENC_TYPE_WEP:
+    return "WEP";
+  case ENC_TYPE_TKIP:
+    return "WPA/PSK";
+  case ENC_TYPE_CCMP:
+    return "WPA2/PSK";
+  case ENC_TYPE_NONE:
+    return "Open";
+  case ENC_TYPE_AUTO:
+    return "WPA/WPA2/PSK";
+  default:
+    return "Unknown";
+  }
+}
+
+String getSignalStrength(int rssi) {
+  if (rssi > -30)
+    return "Excellent";
+  else if (rssi > -50)
+    return "Good";
+  else if (rssi > -60)
+    return "Fair";
+  else if (rssi > -70)
+    return "Weak";
+  else
+    return "Frail";
+}
