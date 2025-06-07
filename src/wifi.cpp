@@ -89,6 +89,7 @@ void connectToWiFi(String ssid, String password) {
     Serial.print("\033[31mStatus: \033[0m");
     Serial.println(WiFi.status());
   }
+}
 
 void disconnectFromWiFi() {
   Serial.println("\n\033[1;33mDisconnecting from WiFi...\033[0m");
