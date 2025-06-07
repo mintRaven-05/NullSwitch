@@ -212,3 +212,69 @@ void handlePasswordRemoval() {
     }
   }
 }
+
+void handleAuthentication() {
+    if (authenticated)
+      return;
+  
+    if (!passwordHashExists()) {
+      if (!promptShown) {
+        Serial.println("\n\033[1;33mAUTHENTICATION SETUP\033[0m");
+        Serial.println(
+            "\033[33m================================================\033[0m");
+        Serial.println(
+            "\033[32m[!] No password found. Please set a new password.\033[0m");
+        Serial.print("\033[33mEnter new password: \033[0m");
+        promptShown = true;
+        settingPassword = true;
+      }
+      return;
+    } else {
+      if (!promptShown) {
+        Serial.println("\n\033[1;31mAUTHENTICATION REQUIRED\033[0m");
+        Serial.println(
+            "\033[31m================================================\033[0m");
+        Serial.print("\033[33mEnter password: \033[0m");
+        promptShown = true;
+      }
+  
+      while (Serial.available()) {
+        char c = Serial.read();
+
+        if (c == 27) {
+          delay(10);
+          while (Serial.available()) {
+            Serial.read();
+          }
+          continue;
+        }
+  
+        if (c == '\n' || c == '\r') {
+          if (commandBuffer.length() > 0) {
+            Serial.println();
+            if (verifyPassword(commandBuffer)) {
+              Serial.println("\033[32m[+] Authentication completed!\033[0m");
+              authenticated = true;
+              displayBootInfo();
+            } else {
+              Serial.println("\033[31m[!] Invalid password! Try again: \033[0m");
+              Serial.print("\033[33mEnter password: \033[0m");
+            }
+            commandBuffer = "";
+            cursorPosition = 0;
+          }
+        } else if (c == 8 || c == 127) {
+          if (commandBuffer.length() > 0 && cursorPosition > 0) {
+            commandBuffer.remove(cursorPosition - 1, 1);
+            cursorPosition--;
+            Serial.print("\b \b");
+          }
+        } else if (c >= 32 && c <= 126) {
+          commandBuffer += c;
+          cursorPosition++;
+          Serial.print("*");
+        }
+      }
+    }
+  }
+  
