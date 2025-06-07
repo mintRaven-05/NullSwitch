@@ -203,3 +203,131 @@ void handleTabCompletion() {
     }
   }
 }
+
+void handleShellInput() {
+  if (!authenticated || !bootComplete || awaitingPasswordRemoval ||
+      awaitingWiFiCredentials) {
+    return;
+  }
+
+  while (Serial.available()) {
+    int c = Serial.read();
+
+    if (c == 27) {
+      delay(5);
+      if (Serial.available() >= 2) {
+        int c2 = Serial.read();
+        if (c2 == '[') {
+          int c3 = Serial.read();
+          if (c3 == '3' && Serial.available() >= 1) {
+            int c4 = Serial.read();
+            if (c4 == '~') {
+
+              if (cursorPosition < (int)commandBuffer.length()) {
+                commandBuffer.remove(cursorPosition, 1);
+                String remaining = commandBuffer.substring(cursorPosition);
+                Serial.print(remaining + " ");
+                for (int i = 0; i <= (int)remaining.length(); i++) {
+                  Serial.print("\b");
+                }
+              }
+            }
+            continue;
+          }
+
+          switch (c3) {
+          case 'A':
+            if (currentHistoryIndex < historyCount - 1) {
+              currentHistoryIndex++;
+              for (int i = 0; i < (int)commandBuffer.length(); i++) {
+                Serial.print("\b \b");
+              }
+              commandBuffer = commandHistory[currentHistoryIndex];
+              cursorPosition = commandBuffer.length();
+              Serial.print(commandBuffer);
+            }
+            break;
+
+          case 'B':
+            if (currentHistoryIndex > 0) {
+              currentHistoryIndex--;
+              for (int i = 0; i < (int)commandBuffer.length(); i++) {
+                Serial.print("\b \b");
+              }
+              commandBuffer = commandHistory[currentHistoryIndex];
+              cursorPosition = commandBuffer.length();
+              Serial.print(commandBuffer);
+            } else if (currentHistoryIndex == 0) {
+              currentHistoryIndex = -1;
+              for (int i = 0; i < (int)commandBuffer.length(); i++) {
+                Serial.print("\b \b");
+              }
+              commandBuffer = "";
+              cursorPosition = 0;
+            }
+            break;
+
+          case 'C':
+            if (cursorPosition < (int)commandBuffer.length()) {
+              cursorPosition++;
+              Serial.print("\033[C");
+            }
+            break;
+
+          case 'D':
+            if (cursorPosition > 0) {
+              cursorPosition--;
+              Serial.print("\033[D");
+            }
+            break;
+          }
+        }
+      } else {
+        while (Serial.available()) {
+          Serial.read();
+        }
+      }
+    } else {
+      if (c == '\n' || c == '\r') {
+
+        Serial.println();
+        executeCommand(commandBuffer);
+        commandBuffer = "";
+        cursorPosition = 0;
+        currentHistoryIndex = -1;
+      } else if (c == 8 || c == 127) {
+        if (cursorPosition > 0) {
+          cursorPosition--;
+          commandBuffer.remove(cursorPosition, 1);
+
+          Serial.print("\b");
+          String remaining = commandBuffer.substring(cursorPosition);
+          Serial.print(remaining + " ");
+
+          for (int i = 0; i <= (int)remaining.length(); i++) {
+            Serial.print("\b");
+          }
+        }
+      } else if (c == 9) {
+
+        handleTabCompletion();
+      } else if (c >= 32 && c <= 126) {
+        if ((int)commandBuffer.length() < MAX_COMMAND_LENGTH) {
+          commandBuffer = commandBuffer.substring(0, cursorPosition) + (char)c +
+                          commandBuffer.substring(cursorPosition);
+
+          if (cursorPosition == (int)commandBuffer.length() - 1) {
+            Serial.print((char)c);
+          } else {
+            String remaining = commandBuffer.substring(cursorPosition);
+            Serial.print(remaining);
+            for (int i = 0; i < (int)remaining.length() - 1; i++) {
+              Serial.print("\b");
+            }
+          }
+          cursorPosition++;
+        }
+      }
+    }
+  }
+}
