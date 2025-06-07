@@ -95,3 +95,71 @@ void disconnectFromWiFi() {
   WiFi.disconnect();
   Serial.println("\033[32mWiFi disconnected.\033[0m");
 }
+
+void showWiFiStatus() {
+  Serial.println("\n\033[1;36mWiFi STATUS\033[0m");
+  Serial.println(
+      "\033[36m================================================\033[0m");
+  Serial.print("\033[33mStatus: \033[0m");
+
+  switch (WiFi.status()) {
+  case WL_CONNECTED:
+    Serial.println("\033[32mConnected\033[0m");
+    Serial.print("\033[33mSSID: \033[0m");
+    Serial.println(WiFi.SSID());
+    Serial.print("\033[33mIP Address: \033[0m");
+    Serial.println(WiFi.localIP());
+    Serial.print("\033[33mGateway: \033[0m");
+    Serial.println(WiFi.gatewayIP());
+    Serial.print("\033[33mSubnet Mask: \033[0m");
+    Serial.println(WiFi.subnetMask());
+    Serial.print("\033[33mDNS: \033[0m");
+    Serial.println(WiFi.dnsIP());
+    Serial.print("\033[33mMAC Address: \033[0m");
+    Serial.println(WiFi.macAddress());
+    Serial.print("\033[33mSignal Strength: \033[0m");
+    Serial.print(WiFi.RSSI());
+    Serial.println(" dBm");
+    Serial.print("\033[33mChannel: \033[0m");
+    Serial.println(WiFi.channel());
+    break;
+  case WL_NO_SSID_AVAIL:
+    Serial.println("\033[31mNetwork not found\033[0m");
+    break;
+  case WL_CONNECT_FAILED:
+    Serial.println("\033[31mConnection failed\033[0m");
+    break;
+  case WL_WRONG_PASSWORD:
+    Serial.println("\033[31mWrong password\033[0m");
+    break;
+  case WL_DISCONNECTED:
+    Serial.println("\033[33mDisconnected\033[0m");
+    break;
+  default:
+    Serial.print("\033[31mUnknown status: \033[0m");
+    Serial.println(WiFi.status());
+    break;
+  }
+
+  Serial.print("\033[33mWiFi Mode: \033[0m");
+  switch (WiFi.getMode()) {
+  case WIFI_OFF:
+    Serial.println("OFF");
+    break;
+  case WIFI_STA:
+    Serial.println("Station");
+    break;
+  case WIFI_AP:
+    Serial.println("Access Point");
+    break;
+  case WIFI_AP_STA:
+    Serial.println("AP + Station");
+    break;
+  default:
+    Serial.println("Unknown");
+    break;
+  }
+
+  Serial.println(
+      "\033[36m================================================\033[0m");
+}
