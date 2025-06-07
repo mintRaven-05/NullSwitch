@@ -201,3 +201,47 @@ void startClientScanning() {
 
   currentScanState = SCANNING_CLIENTS;
 }
+
+void waitForUserInput() {
+  while (Serial.available()) {
+    char c = Serial.read();
+
+    // Handle Ctrl+C
+    if (c == 3) {
+      Serial.println();
+      Serial.println("\033[33m[!] Network scan aborted.\033[0m");
+      networkScanActive = false;
+      showPrompt();
+      return;
+    }
+
+    if (c == '\n' || c == '\r') {
+      if (commandBuffer.length() > 0) {
+        int selection = commandBuffer.toInt();
+        if (selection >= 1 && selection <= networkCount) {
+          int index = selection - 1;
+          memcpy(targetBSSID, networks[index].bssidBytes, 6);
+          targetChannel = networks[index].channel;
+          targetSSID = networks[index].ssid;
+          startClientScanning();
+        } else {
+          Serial.println("\n\033[33m[!] Invalid selection. Please enter a "
+                         "number between 1 and " +
+                         String(networkCount));
+          Serial.print("[?]\033[0m Selection (1-");
+          Serial.print(networkCount);
+          Serial.print("): ");
+        }
+        commandBuffer = "";
+      }
+    } else if (c >= '0' && c <= '9') {
+      commandBuffer += c;
+      Serial.print(c);
+    } else if (c == 8 || c == 127) { // Backspace
+      if (commandBuffer.length() > 0) {
+        commandBuffer.remove(commandBuffer.length() - 1);
+        Serial.print("\b \b");
+      }
+    }
+  }
+}
