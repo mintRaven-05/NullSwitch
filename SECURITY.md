@@ -16,6 +16,6 @@ If the report is valid and in-scope, I will work on a fix and notify you once it
 
 ## Legal & Ethical Notice
 
-NullSwitch is intended **strictly for educational and authorized penetration testing purposes only**. Unauthorized usage on networks you do not own or have explicit permission to test is illegal and a violation of our project's intent.
+**NullSwitch** is intended **strictly for educational and authorized penetration testing purposes only**. Unauthorized usage on networks you do not own or have explicit permission to test is illegal and a violation of our project's intent.
 I will not respond to vulnerabilities arising from unethical or unlawful usage.
 
