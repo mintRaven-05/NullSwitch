@@ -251,7 +251,6 @@ void switchChannel() {
 
   wifi_set_channel(curChannel);
 
-  // Save current channel to EEPROM less frequently to avoid wear
   static int channelSaveCounter = 0;
   if (++channelSaveCounter >= 10) {
     EEPROM.write(2000, curChannel);
