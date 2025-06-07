@@ -350,3 +350,47 @@ void updateClientDisplay() {
   }
   lastActiveCount = activeCount;
 }
+
+void clientScanningLoop() {
+  uint32_t currentTime = millis();
+
+  for (int i = 0; i < clientCount; i++) {
+    if (currentTime - clients[i].lastSeen > 60000) {
+      clients[i].active = false;
+    }
+  }
+
+  static unsigned long lastUpdate = 0;
+  if (currentTime - lastUpdate > 5000) {
+    updateClientDisplay();
+    lastUpdate = currentTime;
+  }
+}
+
+void addOrUpdateClient(const uint8_t *clientMac, int8_t rssi) {
+  if (!isValidClientMac(clientMac))
+    return;
+  if (compareMac(clientMac, targetBSSID))
+    return;
+
+  for (int i = 0; i < clientCount; i++) {
+    if (compareMac(clients[i].mac, clientMac)) {
+      clients[i].rssi = rssi;
+      clients[i].lastSeen = millis();
+      clients[i].packetCount++;
+      clients[i].active = true;
+      return;
+    }
+  }
+
+  if (clientCount < 50) {
+    memcpy(clients[clientCount].mac, clientMac, 6);
+    clients[clientCount].rssi = rssi;
+    clients[clientCount].lastSeen = millis();
+    clients[clientCount].packetCount = 1;
+    clients[clientCount].active = true;
+    clients[clientCount].networkSSID = targetSSID;
+    clients[clientCount].macOUI = getMacOUI(clientMac);
+    clientCount++;
+  }
+}
