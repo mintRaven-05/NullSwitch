@@ -244,3 +244,18 @@ void updateDisplay() {
   Serial.println();
 }
 
+void switchChannel() {
+  curChannel++;
+  if (curChannel > maxCh)
+    curChannel = 1;
+
+  wifi_set_channel(curChannel);
+
+  // Save current channel to EEPROM less frequently to avoid wear
+  static int channelSaveCounter = 0;
+  if (++channelSaveCounter >= 10) {
+    EEPROM.write(2000, curChannel);
+    EEPROM.commit();
+    channelSaveCounter = 0;
+  }
+}
