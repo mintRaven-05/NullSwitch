@@ -171,3 +171,33 @@ void displayNetworks() {
 
   currentScanState = WAITING_FOR_INPUT;
 }
+
+void startClientScanning() {
+  Serial.println();
+  Serial.println("\033[32m[+] Starting client discovery...\033[0m");
+  Serial.println("================================================");
+  Serial.print("\033[32m[INFO] Target BSSID: \033[0m");
+  printMac(targetBSSID);
+  Serial.println();
+  Serial.println("\033[32m[INFO] Target Channel: \033[0m" +
+                 String(targetChannel));
+  Serial.println("\033[32m[INFO] Target SSID: \033[0m" + targetSSID);
+
+  clientCount = 0;
+
+  headerPrinted = false;
+  lastActiveCount = 0;
+
+  wifi_set_opmode(STATION_MODE);
+  wifi_set_channel(targetChannel);
+
+  wifi_set_promiscuous_rx_cb(promiscuousCallback);
+  wifi_promiscuous_enable(1);
+
+  Serial.println("\n\033[32m[+]\033[0m Packet capture started...");
+  Serial.println("\033[32m[+]\033[0m Press Ctrl+C to stop");
+  Serial.println("\033[32m[+]\033[0m Looking for devices connected to: " +
+                 targetSSID);
+
+  currentScanState = SCANNING_CLIENTS;
+}
