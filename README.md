@@ -9,7 +9,7 @@
 [![Issues](https://img.shields.io/github/issues/mintRaven-05/nullswitch.svg?style=social&logo=github)](https://github.com/mintRaven-05/nullswitch/issues)
 </div>
 
-## What is NullSwitch?
+## Huh ?
 
 **NullSwitch** is a lightweight, command-line-based wireless network auditing toolkit designed for the ESP8266 microcontroller. It provides a suite of tools for scanning, monitoring, and simulating wireless activity, with the goal of supporting educational, research, and authorized penetration testing scenarios.
 
@@ -20,30 +20,52 @@
 ![pktmon](https://github.com/user-attachments/assets/5b64d28a-4827-4f10-b0d7-947946729aa0)
 </div>
 
-## Available commands
+
+<h2 align=center> Available Commands </h2>
 <div align=center>
   
 ![help](https://github.com/user-attachments/assets/3df7e51a-3f3e-4ac5-8b1d-fd0c7ecde588)
 </div>
 
-## Current Features
+<h2 align=center> Current Features </h2>
+<div align=center>
+<table>
+  <tr>
+    <td valign="top">
+      <strong>Command-Line Interface (CLI)</strong>
+      <ul>
+        <li>Command history traversal</li>
+        <li>Auto tab completion</li>
+        <li>Cursor control and navigation</li>
+      </ul>
+    </td>
+    <td valign="top">
+      <strong>Network Scanning and Monitoring</strong>
+      <ul>
+        <li>Scan for nearby Wi-Fi networks</li>
+        <li>Monitor active devices connected to discovered networks</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <strong>Packet Monitoring</strong>
+      <ul>
+        <li>Auto or locked channel mode</li>
+        <li>Detects and notifies on deauth attacks</li>
+      </ul>
+    </td>
+    <td valign="top">
+      <strong>Beacon Attack Module</strong>
+      <ul>
+        <li>Generate and broadcast fake access points</li>
+        <li>Intended to confuse network scanners</li>
+      </ul>
+    </td>
+  </tr>
+</table>
+</div>
 
-#### Command-Line Interface (CLI)
-- Command history traversal
-- Auto tab completion
-- Cursor control and navigation
-
-#### Network Scanning and Monitoring
-- Scan for nearby Wi-Fi networks
-- Monitor active devices connected to discovered networks
-
-#### Packet Monitoring
-- Run in auto (channel-hopping) or locked channel mode
-- Real-time detection and notification of deauthentication attacks
-
-#### Beacon Attack Module
-- Generate and broadcast fake access points
-- Intended to confuse network scanners
 
 ## Legal Notice
 
